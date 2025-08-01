@@ -62,7 +62,11 @@ def set_task_logger(log_file, task_id=None):
 
 
 def save_infer_result(task, args):
-    result = [item.to_dict() for item in task.request_items]
+    result = []
+    for item in task.request_items:
+        item_dict = item.to_dict()
+        item_dict.pop("prompt_token_ids")
+        result.append(item_dict)
     infer_file = os.path.join(args.infer_result_path, f"{task.id:0{args.id_length}d}.json")
     with open(infer_file, "w") as f:
         json.dump(result, f, indent=4, ensure_ascii=False)

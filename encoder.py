@@ -10,10 +10,10 @@ def init_encoder(model_path):
     _process_tokenizer = AutoTokenizer.from_pretrained(model_path)
 
 
-def encode(text: str, max_length: int = 512):
+def encode(text: str, max_length: int):
     global _process_tokenizer
     input_ids = _process_tokenizer(text)["input_ids"]
-    assert len(input_ids) <= max_length, f"input_ids length {len(input_ids)} exceeds max_length {max_length}"
+    assert len(input_ids) <= max_length, f"input_ids length {len(input_ids)} exceeds max_input_length {max_length}"
     return input_ids
 
 

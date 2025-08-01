@@ -36,7 +36,6 @@ class VllmModel:
         return SamplingParams(**sampling_kwargs)
 
     def generate(self, inputs: dict, use_tqdm=False):
-        print(inputs)
         outputs = self.model.generate(inputs, self.sampling_params, use_tqdm=use_tqdm)
         generated_texts = [output.outputs[0].text.strip() for output in outputs]
         return generated_texts
