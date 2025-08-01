@@ -8,19 +8,25 @@ from tqdm import tqdm
 
 class VllmModel:
     def __init__(self, args) -> None:
+        default_model_args = {
+            "trust_remote_code": True,
+        }
+        model_args = json.loads(args.model_args)
+        for k, v in model_args.items():
+            default_model_args[k] = v
+        model_args = default_model_args
         self.model = LLM(
-            model=args.model_path, 
-            trust_remote_code=True,
-            tensor_parallel_size=args.tensor_parallel_size,
-            gpu_memory_utilization=0.8,
+            model=args.model_path,
+            **model_args
         )
-        self.sampling_params = self._get_sampling_params(args.sampling_params_fn)
+        self.sampling_params = self._get_sampling_params(args)
 
-    def _get_sampling_params(self, sampling_params_fn):
+    def _get_sampling_params(self, args):
         with open(os.path.join(os.path.dirname(__file__), "default_sampling_params.json"), "r") as f:
             default_config = json.load(f)
         try:
-            with open(sampling_params_fn, "r") as f:
+            config_path = os.path.join(os.path.dirname(__file__), "configs", args.task_name)
+            with open(os.path.join(config_path, args.sampling_params_fn), "r") as f:
                 sampling_kwargs = json.load(f)
         except FileNotFoundError:
             sampling_kwargs = {}
@@ -29,8 +35,9 @@ class VllmModel:
                 sampling_kwargs[k] = v
         return SamplingParams(**sampling_kwargs)
 
-    def generate(self, prompts, use_tqdm=False):
-        outputs = self.model.generate(prompts, self.sampling_params, use_tqdm=use_tqdm)
+    def generate(self, inputs: dict, use_tqdm=False):
+        print(inputs)
+        outputs = self.model.generate(inputs, self.sampling_params, use_tqdm=use_tqdm)
         generated_texts = [output.outputs[0].text.strip() for output in outputs]
         return generated_texts
 
@@ -41,14 +48,15 @@ class HfModel:
         self.tokenizer = AutoTokenizer.from_pretrained(args.model_path)
         self.tokenizer.pad_token = self.tokenizer.eos_token
         self.tokenizer.pad_token_id = self.tokenizer.eos_token_id
-        self.sampling_kwargs = self._get_sampling_params(args.sampling_params_fn)
+        self.sampling_kwargs = self._get_sampling_params(args)
         self.model = AutoModelForCausalLM.from_pretrained(args.model_path).to(self.device)
 
-    def _get_sampling_params(self, sampling_params_fn):
+    def _get_sampling_params(self, args):
         with open(os.path.join(os.path.dirname(__file__), "default_sampling_params.json"), "r") as f:
             default_config = json.load(f)
         try:
-            with open(sampling_params_fn, "r") as f:
+            config_path = os.path.join(os.path.dirname(__file__), "configs", args.task_name)
+            with open(os.path.join(config_path, args.sampling_params_fn), "r") as f:
                 config = json.load(f)
         except FileNotFoundError:
             config = {}
@@ -70,12 +78,13 @@ class HfModel:
             }
         return sampling_kwargs
 
-    def generate(self, prompts, use_tqdm=False):
+    def generate(self, inputs: list[str], use_tqdm=False):
         generated_texts = []
-        for prompt in tqdm(prompts, desc="infering", disable=not use_tqdm):
-            inputs = self.tokenizer(prompt, return_tensors="pt").to(self.device)
+        for input in tqdm(inputs, desc="infering", disable=not use_tqdm):
+            prompt = input["prompt"]
+            encoded_input = self.tokenizer(prompt, return_tensors="pt").to(self.device)
             generate_ids = self.model.generate(
-                **inputs,
+                **encoded_input,
                 **self.sampling_kwargs
             )
             output = self.tokenizer.batch_decode(generate_ids, skip_special_tokens=True)[0]

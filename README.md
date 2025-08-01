@@ -67,6 +67,7 @@ python main.py \
 |------|------|--------|------|
 | `--model_path` | str | 必需 | 模型路径 |
 | `--model_type` | str | "vllm" | 模型类型: "vllm" 或 "hf" |
+| `--model_args` | str | None | 模型初始化参数, json_str |
 | `--output_path` | str | 必需 | 输出路径 |
 | `--task_name` | str | 必需 | 任务配置名称 |
 
@@ -76,7 +77,6 @@ python main.py \
 |------|------|--------|------|
 | `--tasks` | int | 1 | 任务数量（所有输入平均分配，每个任务产生一个存档点） |
 | `--workers` | int | 1 | 工作进程数（数据并行数量） |
-| `--tensor_parallel_size` | int | 1 | 张量并行大小（模型需要几张卡） |
 | `--use_cpu` | flag | False | 使用 CPU 推理（需要model_type=hf） |
 | `--extract_only` | flag | False | 不用模型推理，仅执行答案提取 |
 | `--rerun` | flag | False | 需要重新运行已完成的任务 |
