@@ -36,16 +36,15 @@ python main.py \
 
 ```bash
 export CUDA_VISIBLE_DEVICES=0,1,2,3
-# workers * tensor_parallel_size = n_gpus
 
 python main.py \
     --model_path /path/to/your/model \
     --model_type vllm \
+    --model_args '{"tensor_parallel_size": 4, "gpu_memory_utilization": 0.8, "max_model_len": 32767, "max_num_seqs": 128}'  \
     --output_path output \
     --task_name your_task \
     --tasks 4 \
-    --workers 2 \
-    --tensor_parallel_size 2
+    --workers 2
 ```
 
 ### 3. CPU 推理
