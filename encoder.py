@@ -1,5 +1,4 @@
 import multiprocessing as mp
-from typing import List
 from tqdm import tqdm
 from transformers import AutoTokenizer
 
@@ -10,11 +9,14 @@ def init_encoder(model_path):
     _process_tokenizer = AutoTokenizer.from_pretrained(model_path)
 
 
-def encode(text: str, max_length: int):
+def encode(merged_args):
     global _process_tokenizer
+    text, max_length = merged_args
     input_ids = _process_tokenizer(text)["input_ids"]
-    assert len(input_ids) <= max_length, f"input_ids length {len(input_ids)} exceeds max_input_length {max_length}"
-    return input_ids
+    if len(input_ids) <= max_length:
+        return input_ids
+    else:
+        return []
 
 
 def encode_all_tasks(tasks, args):
@@ -22,12 +24,21 @@ def encode_all_tasks(tasks, args):
     prompt_token_ids = []
     with tqdm(total=len(prompts), desc="encoding", unit="prompt") as pbar:
         with mp.Pool(args.encode_workers, initializer=init_encoder, initargs=(args.model_path,)) as pool:
-            for input_ids in pool.starmap(encode, [(prompt, args.max_input_length) for prompt in prompts]):
+            merged_args_list = [(prompt, args.max_input_length) for prompt in prompts]
+            for input_ids in pool.imap(encode, merged_args_list):
                 prompt_token_ids.append(input_ids)
                 pbar.update(1)
     p = 0
+    encoded_tasks = []
     for task in tasks:
+        encoded_task = task
+        encoded_requests = []
         for req in task.request_items:
-            req.prompt_token_ids = prompt_token_ids[p]
+            encoded_req = req
+            encoded_req.prompt_token_ids = prompt_token_ids[p]
             p += 1
-    return tasks
+            if len(encoded_req.prompt_token_ids) > 0:
+                encoded_requests.append(req)
+        encoded_task.request_items = encoded_requests
+        encoded_tasks.append(encoded_task)
+    return encoded_tasks
