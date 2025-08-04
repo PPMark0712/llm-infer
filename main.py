@@ -80,8 +80,10 @@ def save_infer_result(task, args):
 def save_extract_result(task, args):
     result = []
     for item in task.request_items:
-        extract_data = item.to_dict()
-        result.append(extract_data)
+        item_dict = item.to_dict()
+        item_dict.pop("prompt_token_ids")
+        item_dict.pop("extracted_answer")
+        result.append(item_dict)
     extract_file = os.path.join(args.extract_result_path, f"{task.id:0{args.id_length}d}.json")
     with open(extract_file, "w") as f:
         json.dump(result, f, indent=4, ensure_ascii=False)
