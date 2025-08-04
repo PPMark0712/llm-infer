@@ -66,6 +66,7 @@ def save_infer_result(task, args):
     for item in task.request_items:
         item_dict = item.to_dict()
         item_dict.pop("prompt_token_ids")
+        item_dict.pop("extracted_answer")
         result.append(item_dict)
     infer_file = os.path.join(args.infer_result_path, f"{task.id:0{args.id_length}d}.json")
     with open(infer_file, "w") as f:
@@ -82,7 +83,6 @@ def save_extract_result(task, args):
     for item in task.request_items:
         item_dict = item.to_dict()
         item_dict.pop("prompt_token_ids")
-        item_dict.pop("extracted_answer")
         result.append(item_dict)
     extract_file = os.path.join(args.extract_result_path, f"{task.id:0{args.id_length}d}.json")
     with open(extract_file, "w") as f:
