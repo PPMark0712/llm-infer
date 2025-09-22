@@ -86,7 +86,7 @@ class HfModel:
                 **encoded_input,
                 **self.sampling_kwargs
             )
-            output = self.tokenizer.batch_decode(generate_ids, skip_special_tokens=True)[0]
+            output = self.tokenizer.batch_decode(generate_ids, skip_special_tokens=False)[0]
             generated_texts.append(output[len(prompt):])
         return generated_texts
 
