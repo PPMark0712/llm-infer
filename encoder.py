@@ -1,6 +1,7 @@
 import multiprocessing as mp
 from tqdm import tqdm
 from transformers import AutoTokenizer
+import logging
 
 _process_tokenizer = None
 
@@ -33,12 +34,16 @@ def encode_all_tasks(tasks, args):
     for task in tasks:
         encoded_task = task
         encoded_requests = []
+        cnt_too_long = 0
         for req in task.request_items:
             encoded_req = req
             encoded_req.prompt_token_ids = prompt_token_ids[p]
             p += 1
             if len(encoded_req.prompt_token_ids) > 0:
                 encoded_requests.append(req)
+            else:
+                cnt_too_long += 1
         encoded_task.request_items = encoded_requests
         encoded_tasks.append(encoded_task)
+        logging.info(f"task {task.id} has {cnt_too_long}/{len(task.request_items)} prompts too long")
     return encoded_tasks
