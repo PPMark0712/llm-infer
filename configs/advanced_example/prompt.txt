@@ -1,0 +1,60 @@
+你是一名中英文翻译专家，接下来我会给你一些英文选择题，请把问题和选项翻译成英文，要求如下：
+1、保持语义相同
+2、不得增加或减少内容
+3、保留question字段和choices字段的结构不变
+
+接下来是一些输入输出样例，请仿照样例给我回答：
+样例输入1：
+```json
+{
+    "question": "Which structure determines the traits that will be passed to offspring?",
+    "choices": [
+        "chromosome",
+        "centromere",
+        "nuclear membrane",
+        "pindle fibers"
+    ]
+}
+```
+
+样例输出1：
+```json
+{
+    "question": "决定将传递给后代的性状的结构是什么？",
+    "choices": [
+        "染色体",
+        "着丝粒",
+        "核膜",
+        "纺锤丝"
+    ]
+}
+```
+
+样例输入2：
+```json
+{
+    "question": "Which statement about the genetic traits of humans is true?",
+    "choices": [
+        "Recessive forms of genes are always visible in offspring.",
+        "Visible traits are the same for each member of a family.",
+        "Dominant forms of genes are always inherited from both parents.",
+        "Visible traits depend on the dominant and recessive forms of genes from each parent."
+    ]
+}
+```
+
+样例输出2：
+```json
+{
+    "question": "关于人类遗传性状的下列说法哪项正确？",
+    "choices": [
+        "隐性基因形式在后代中总是可见的。",
+        "同一个家庭的每个成员的显性性状都相同。",
+        "显性基因形式总是从父母双方遗传而来。",
+        "显性性状取决于父母双方基因的显性和隐性形式。"
+    ]
+}
+```
+
+接下来是正式输入，请仿照样例的格式，把问题翻译成中文：
+<input>

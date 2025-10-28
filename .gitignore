@@ -1,6 +1,8 @@
 configs/*
 !configs/basic_example/
 !configs/basic_example/**
+!configs/advanced_example/
+!configs/advanced_example/**
 output/
 run.sh
 
