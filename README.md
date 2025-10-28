@@ -34,6 +34,8 @@ python main.py \
 
 ### 2. 多 GPU 并行推理
 
+单进程，模型并行，一个模型占用4卡。
+
 ```bash
 export CUDA_VISIBLE_DEVICES=0,1,2,3
 
@@ -41,6 +43,21 @@ python main.py \
     --model_path /path/to/your/model \
     --model_type vllm \
     --model_args '{"tensor_parallel_size": 4, "gpu_memory_utilization": 0.8, "max_model_len": 32767, "max_num_seqs": 128}'  \
+    --output_path output \
+    --task_name your_task \
+    --tasks 4 \
+    --workers 1
+```
+
+2子进程分别拥有一个模型，一个模型占用2卡，数据并行推理。
+
+```bash
+export CUDA_VISIBLE_DEVICES=0,1,2,3
+
+python main.py \
+    --model_path /path/to/your/model \
+    --model_type vllm \
+    --model_args '{"tensor_parallel_size": 2, "gpu_memory_utilization": 0.8, "max_model_len": 32767, "max_num_seqs": 128}'  \
     --output_path output \
     --task_name your_task \
     --tasks 4 \
@@ -130,7 +147,7 @@ def read_file(file_path: str) -> list[dict]:
 
 def format_prompt(org_data: dict) -> str:
     """
-    将原始数据格式化为提示词。
+    将原始数据格式化为提示词，若使用chat模型，需要应用chat template。
     参数:
         org_data (dict): 原始数据字典。
     返回:
