@@ -47,7 +47,7 @@ def format_prompt(org_data):
             "content": prompt_template.replace("<input>", input_str)
         }
     ]
-    return tokenizer.apply_chat_template(message, tokenize=False)
+    return tokenizer.apply_chat_template(message, tokenize=False, add_generation_prompt=True)
 
 
 def extract_answer(model_response):
